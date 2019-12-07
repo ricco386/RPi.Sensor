@@ -1,7 +1,7 @@
 RPi.Sensor
 ##########
 
-Generic Class for Pythonsensor objects connected to Raspberry Pi.
+Generic class for Python sensor objects connected to Raspberry Pi.
 
 Installation
 ------------
@@ -20,6 +20,7 @@ Usage
 -----
 
 Inherit Sensor object.
+
 Sensor object already does some basic logging, and simple argparse for cmdline scripts. It also does create infinite loop for running sensor and has flag to finish the loop it is is called in a thread.
 
 License

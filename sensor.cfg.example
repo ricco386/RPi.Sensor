@@ -6,18 +6,5 @@ logfile = /tmp/sensor.log
 # Log level (required)
 loglevel = INFO
 
-# Setup NODE ID
-node_id =
-
-[server]
-# Setup server url without trailing slash
-hostname =
-
-# Setup login username
-username =
-
-# Setup login password
-password =
-
 # Notify after X failed sensor readings
 failed_notify = 10
