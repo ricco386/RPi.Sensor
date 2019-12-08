@@ -17,6 +17,7 @@ class Sensor(object):
     NAME = 'Sensor'
     PIN = None
     GPIO = None
+    GPIO_BCM = False
     FAILED = 0
     FAILED_NOTIF = 10
     SLEEP = 0
@@ -53,6 +54,7 @@ class Sensor(object):
 
         if self.NAME in self.config:
             self.PIN = int(self.config.get(self.NAME, 'sensor_pin', fallback=self.PIN))
+            self.GPIO_BCM = bool(self.config.get(self.NAME, 'gpio_bcm', fallback=self.GPIO_BCM))
             cycle_sleep = int(self.config.get(self.NAME, 'cycle_sleep', fallback=0))
             sensor_failed_notif = int(self.config.get(self.NAME, 'failed_notify', fallback=0))
 
@@ -69,9 +71,16 @@ class Sensor(object):
         self.logger.debug('Sensor %s at cycle_sleep: %s.', self.NAME, self.SLEEP)
         self.logger.debug('Sensor %s at failed_notify: %s.', self.NAME, self.FAILED_NOTIF)
 
-    def gpio_setup(self):
+    def gpio_setup(self, gpio_bcm=False):
         self.GPIO = GPIO
-        self.GPIO.setmode(GPIO.BOARD)
+
+        if gpio_bcm:
+            self.GPIO.setmode(GPIO.BCM)
+            self.logger.debug('Sensor %s mode set to GPIO.BCM.', self.NAME)
+        else:
+            self.GPIO.setmode(GPIO.BOARD)
+            self.logger.debug('Sensor %s mode set to GPIO.BOARD', self.NAME)
+
         self.GPIO.setup(self.PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         self.logger.info('Sensor %s at PIN: %s.', self.NAME, self.PIN)
 
@@ -86,10 +95,9 @@ class Sensor(object):
         """
         Helper function with code to be run before reading the sensor
         """
-        self.logger.debug('Pre-read sensor callback.')
-
+        # self.logger.debug('Pre-read sensor callback.')  # Do not spam the log
         if self.GPIO is None:
-            self.gpio_setup()
+            self.gpio_setup(self.GPIO_BCM)
 
     def sensor_read_callback(self):
         """
@@ -101,8 +109,7 @@ class Sensor(object):
         """
         Helper function with code to be run after reading the sensor
         """
-        self.logger.debug('Post-read sensor callback.')
-
+        # self.logger.debug('Post-read sensor callback.')  # Do not spam the log
         if self.FAILED >= self.FAILED_NOTIF:
             self.logger.warning('Sensor reading has failed %s in a row.' % self.FAILED)
             self.failed_notification_callback()
