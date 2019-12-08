@@ -52,7 +52,7 @@ class Sensor(object):
         sensor_failed_notif = False
 
         if self.NAME in self.config:
-            self.PIN = self.config.get(self.NAME, 'sensor_pin', fallback=self.PIN)
+            self.PIN = int(self.config.get(self.NAME, 'sensor_pin', fallback=self.PIN))
             cycle_sleep = int(self.config.get(self.NAME, 'cycle_sleep', fallback=0))
             sensor_failed_notif = int(self.config.get(self.NAME, 'failed_notify', fallback=0))
 
