@@ -10,6 +10,10 @@ Installation
 
     pip install https://github.com/ricco386/RPi.Sensor/zipball/master
 
+- Alternatively install latest released version from pypi::
+
+    pip install --upgrade RPi.Sensor
+
 - Make sure all dependencies (listed below) are installed (done automatically when installing via pip)
 
 **Dependencies:**
