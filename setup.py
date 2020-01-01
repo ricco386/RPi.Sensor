@@ -25,7 +25,7 @@ with open("README.rst", "r") as fp:
 
 setup(
     name="RPi.Sensor",
-    version="0.3.0",
+    version="0.3.1a",
     author="Richard von Kellner",
     author_email="richard.kellner@gmail.com",
     url="https://github.com/ricco386/RPi.Sensor",
