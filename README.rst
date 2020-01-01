@@ -1,7 +1,7 @@
 RPi.Sensor
 ##########
 
-Generic class for Python sensor objects connected to Raspberry Pi.
+Generic Python base class to create infinite loop to work with different sensors connected to Raspberry Pi.
 
 Installation
 ------------
@@ -14,14 +14,17 @@ Installation
 
 **Dependencies:**
 
-- `RPi.GPIO <https://pypi.python.org/pypi/RPi.GPIO>`_ (0.6.1+)
+- `RPi.GPIO <https://pypi.python.org/pypi/RPi.GPIO>`_
+- `wheel <https://pypi.org/project/wheel/>`_
 
 Usage
 -----
 
 Inherit Sensor object.
 
-Sensor object already does some basic logging, and simple argparse for cmdline scripts. It also does create infinite loop for running sensor and has flag to finish the loop it is is called in a thread.
+Main purpose of the sensor object is to run infinite loop for reading from the sensors. Object has build in basic functionality to terminate the infinite loop correctly, basic logging etc.
+
+Intention is to have ability to easily run some code before (or after) reading the sensor, this is is skelleton that doesnt do any logic and should be used only as a base for building the interactions with the sensors.
 
 License
 -------

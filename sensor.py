@@ -23,7 +23,8 @@ class Sensor(object):
     SLEEP = 0
     EXIT = False
 
-    def __init__(self):
+    def __init__(self, name='Sensor'):
+        self.NAME = name
         self.logger = logging.getLogger(self.NAME)
         self.config = init_config_file()
         # Prepare logging configuration
@@ -95,7 +96,6 @@ class Sensor(object):
         """
         Helper function with code to be run before reading the sensor
         """
-        # self.logger.debug('Pre-read sensor callback.')  # Do not spam the log
         if self.GPIO is None:
             self.gpio_setup(self.GPIO_BCM)
 
@@ -109,7 +109,6 @@ class Sensor(object):
         """
         Helper function with code to be run after reading the sensor
         """
-        # self.logger.debug('Post-read sensor callback.')  # Do not spam the log
         if self.FAILED >= self.FAILED_NOTIF:
             self.logger.warning('Sensor reading has failed %s in a row.' % self.FAILED)
             self.failed_notification_callback()
