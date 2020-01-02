@@ -8,3 +8,6 @@ loglevel = INFO
 
 # Notify after X failed sensor readings
 failed_notify = 10
+
+# time.sleep() in the infinite loop, in seconds
+cycle_sleep = 0.05

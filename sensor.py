@@ -9,7 +9,7 @@ import signal
 
 import RPi.GPIO as GPIO
 
-from utils import parse_loglevel, init_config_file
+from utils import init_config_file, get_logging_config
 
 
 class Sensor(object):
@@ -23,69 +23,57 @@ class Sensor(object):
     SLEEP = 0
     EXIT = False
 
-    def __init__(self, name='Sensor'):
+    def __init__(self, name='Sensor', params=()):
         self.NAME = name
         self.config = init_config_file()
-        self.setup_logging()
+
+        # Setup logging
+        self.logger = logging.getLogger(self.NAME)
+        logging.basicConfig(**get_logging_config(self.config, self.NAME))
 
         signal.signal(signal.SIGINT, self.exit_gracefully)
         signal.signal(signal.SIGTERM, self.exit_gracefully)
 
         self.setup_sensor()
+        self.setup_args(params)  # Should overwrite the default options in config file
 
     def exit_gracefully(self, signum, frame):
         self.EXIT = True
         self.logger.info('Sensor %s received interrupt signal.', self.NAME)
-
-    def setup_logging(self):
-        """
-        Prepare logging configuration
-        """
-        self.logger = logging.getLogger(self.NAME)
-        level = self.config.get('global', 'loglevel', fallback=logging.INFO)
-        filename = self.config.get('global', 'logfile', fallback='/tmp/sensor.log').strip()
-
-        logconfig = {
-            'format': self.config.get('global', 'logformat',
-                                      fallback='%(asctime)s %(levelname)-8s %(name)s: %(message)s')
-        }
-
-        if self.NAME in self.config:
-            logconfig['filename'] = self.config.get(self.NAME,  'logfile', fallback=filename).strip()
-            logconfig['level'] = parse_loglevel(self.config.get(self.NAME, 'loglevel', fallback=level))
-        else:
-            logconfig['filename'] = filename
-            logconfig['level'] = parse_loglevel(level)
-
-        # Setup logging
-        logging.basicConfig(**logconfig)
 
     def setup_sensor(self):
         """
         Initial function to configure sensor before the main infinite loop
         """
         self.logger.debug('Sensor %s initial setup.', self.NAME)
-        cycle_sleep = False
-        sensor_failed_notif = False
+        self.SLEEP = float(self.config.get('global', 'cycle_sleep', fallback=0.05))
+        self.FAILED_NOTIF = int(self.config.get('global', 'failed_notify', fallback=10))
 
         if self.NAME in self.config:
             self.PIN = int(self.config.get(self.NAME, 'sensor_pin', fallback=self.PIN))
             self.GPIO_BCM = bool(self.config.get(self.NAME, 'gpio_bcm', fallback=self.GPIO_BCM))
-            cycle_sleep = int(self.config.get(self.NAME, 'cycle_sleep', fallback=0))
-            sensor_failed_notif = int(self.config.get(self.NAME, 'failed_notify', fallback=0))
-
-        if cycle_sleep:
-            self.SLEEP = cycle_sleep
-        else:
-            self.SLEEP = int(self.config.get('global', 'cycle_sleep', fallback=0))
-
-        if sensor_failed_notif:
-            self.FAILED_NOTIF = sensor_failed_notif
-        else:
-            self.FAILED_NOTIF = int(self.config.get('global', 'failed_notify', fallback=10))
+            self.SLEEP = float(self.config.get(self.NAME, 'cycle_sleep', fallback=self.SLEEP))
+            self.FAILED_NOTIF = int(self.config.get(self.NAME, 'failed_notify', fallback=self.FAILED_NOTIF))
 
         self.logger.debug('Sensor %s at cycle_sleep: %s.', self.NAME, self.SLEEP)
         self.logger.debug('Sensor %s at failed_notify: %s.', self.NAME, self.FAILED_NOTIF)
+
+    def setup_args(self, params):
+        if hasattr(params, 'pin') and params.pin:
+            self.PIN = self.pin
+            self.logger.info('Sensor %s at PIN: %s (set by script parameter).', self.NAME, self.PIN)
+
+        if hasattr(params, 'gpio_bcm') and params.gpio_bcm:
+            self.GPIO_BCM = True
+            self.logger.info('Sensor %s mode set to GPIO.BCM (set by script parameter).', self.NAME)
+
+        if hasattr(params, 'cycle_sleep') and params.cycle_sleep:
+            self.SLEEP = self.cycle_sleep
+            self.logger.debug('Sensor %s at cycle_sleep: %s (set by script parameter).', self.NAME, self.SLEEP)
+
+        if hasattr(params, 'failed_notify') and params.failed_notify:
+            self.FAILED_NOTIF = self.failed_notify
+            self.logger.debug('Sensor %s at failed_notify: %s (set by script parameter).', self.NAME, self.FAILED_NOTIF)
 
     def gpio_setup(self, gpio_bcm=False):
         self.GPIO = GPIO

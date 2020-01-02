@@ -12,17 +12,10 @@ from configparser import ConfigParser
 LOG_LEVELS = frozenset(['DEBUG', 'INFO', 'WARN', 'WARNING', 'ERROR', 'FATAL', 'CRITICAL'])
 
 
-def parse_loglevel(name):
-    """Parse log level name and return log level integer value"""
-    name = name.upper()
-
-    if name in LOG_LEVELS:
-        return getattr(logging, name, logging.INFO)
-
-    return logging.INFO
-
-
 def init_config_file():
+    """
+    Load configuration file and search in different locations.
+    """
     cfg = 'sensor.cfg'
     cfg_fp = None
     cfg_lo = ((os.path.expanduser('~'), '.' + cfg), (sys.prefix, 'etc', cfg), ('/etc', cfg))
@@ -43,3 +36,37 @@ def init_config_file():
     config.readfp(cfg_fp)
 
     return config
+
+
+def parse_loglevel(name):
+    """
+    Parse log level name and return log level integer value
+    """
+    name = name.upper()
+
+    if name in LOG_LEVELS:
+        return getattr(logging, name, logging.INFO)
+
+    return logging.INFO
+
+
+def get_logging_config(config, name):
+    """
+    Prepare logging configuration for the sensor.
+
+    Configuration set in config file, could be overwritten by sensor sections in config file.
+    """
+    level = config.get('global', 'loglevel', fallback=logging.INFO)
+    filename = config.get('global', 'logfile', fallback='/tmp/sensor.log').strip()
+
+    logconfig = {
+        'format': config.get('global', 'logformat', fallback='%(asctime)s %(levelname)-8s %(name)s: %(message)s')
+        'filename': filename,
+        'level': parse_loglevel(level),
+    }
+
+    if name in config:
+        logconfig['filename'] = config.get(name,  'logfile', fallback=filename).strip()
+        logconfig['level'] = parse_loglevel(config.get(name, 'loglevel', fallback=level))
+
+    return logconfig
