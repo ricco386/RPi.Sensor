@@ -25,27 +25,42 @@ class Sensor(object):
 
     def __init__(self, name='Sensor'):
         self.NAME = name
-        self.logger = logging.getLogger(self.NAME)
         self.config = init_config_file()
-        # Prepare logging configuration
-        logconfig = {
-            'filename': self.config.get('global', 'logfile', fallback='/tmp/sensor.log').strip(),
-            'level': parse_loglevel(self.config.get('global', 'loglevel', fallback=logging.INFO)),
-            'format': self.config.get('global', 'logformat', fallback='%(asctime)s %(levelname)-8s %(name)s: %(message)s')
-        }
-        # Setup logging
-        logging.basicConfig(**logconfig)
+        self.setup_logging()
 
         signal.signal(signal.SIGINT, self.exit_gracefully)
         signal.signal(signal.SIGTERM, self.exit_gracefully)
 
-        self.sensor_setup()
+        self.setup_sensor()
 
     def exit_gracefully(self, signum, frame):
         self.EXIT = True
         self.logger.info('Sensor %s received interrupt signal.', self.NAME)
 
-    def sensor_setup(self):
+    def setup_logging(self):
+        """
+        Prepare logging configuration
+        """
+        self.logger = logging.getLogger(self.NAME)
+        level = self.config.get('global', 'loglevel', fallback=logging.INFO)
+        filename = self.config.get('global', 'logfile', fallback='/tmp/sensor.log').strip()
+
+        logconfig = {
+            'format': self.config.get('global', 'logformat',
+                                      fallback='%(asctime)s %(levelname)-8s %(name)s: %(message)s')
+        }
+
+        if self.NAME in self.config:
+            logconfig['filename'] = self.config.get(self.NAME,  'logfile', fallback=filename).strip()
+            logconfig['level'] = parse_loglevel(self.config.get(self.NAME, 'loglevel', fallback=level))
+        else:
+            logconfig['filename'] = filename
+            logconfig['level'] = parse_loglevel(level)
+
+        # Setup logging
+        logging.basicConfig(**logconfig)
+
+    def setup_sensor(self):
         """
         Initial function to configure sensor before the main infinite loop
         """
