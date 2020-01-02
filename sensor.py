@@ -60,7 +60,7 @@ class Sensor(object):
 
     def setup_args(self, params):
         if hasattr(params, 'pin') and params.pin:
-            self.PIN = self.pin
+            self.PIN = params.pin
             self.logger.info('Sensor %s at PIN: %s (set by script parameter).', self.NAME, self.PIN)
 
         if hasattr(params, 'gpio_bcm') and params.gpio_bcm:
@@ -68,11 +68,11 @@ class Sensor(object):
             self.logger.info('Sensor %s mode set to GPIO.BCM (set by script parameter).', self.NAME)
 
         if hasattr(params, 'cycle_sleep') and params.cycle_sleep:
-            self.SLEEP = self.cycle_sleep
+            self.SLEEP = params.cycle_sleep
             self.logger.debug('Sensor %s at cycle_sleep: %s (set by script parameter).', self.NAME, self.SLEEP)
 
         if hasattr(params, 'failed_notify') and params.failed_notify:
-            self.FAILED_NOTIF = self.failed_notify
+            self.FAILED_NOTIF = params.failed_notify
             self.logger.debug('Sensor %s at failed_notify: %s (set by script parameter).', self.NAME, self.FAILED_NOTIF)
 
     def gpio_setup(self, gpio_bcm=False):

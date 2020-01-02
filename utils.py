@@ -60,7 +60,7 @@ def get_logging_config(config, name):
     filename = config.get('global', 'logfile', fallback='/tmp/sensor.log').strip()
 
     logconfig = {
-        'format': config.get('global', 'logformat', fallback='%(asctime)s %(levelname)-8s %(name)s: %(message)s')
+        'format': config.get('global', 'logformat', fallback='%(asctime)s %(levelname)-8s %(name)s: %(message)s'),
         'filename': filename,
         'level': parse_loglevel(level),
     }
@@ -70,3 +70,4 @@ def get_logging_config(config, name):
         logconfig['level'] = parse_loglevel(config.get(name, 'loglevel', fallback=level))
 
     return logconfig
+
