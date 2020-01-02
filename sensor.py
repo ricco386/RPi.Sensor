@@ -65,24 +65,14 @@ class Sensor(object):
         Initial function to configure sensor before the main infinite loop
         """
         self.logger.debug('Sensor %s initial setup.', self.NAME)
-        cycle_sleep = False
-        sensor_failed_notif = False
+        self.SLEEP = float(self.config.get('global', 'cycle_sleep', fallback=0.05))
+        self.FAILED_NOTIF = int(self.config.get('global', 'failed_notify', fallback=10))
 
         if self.NAME in self.config:
             self.PIN = int(self.config.get(self.NAME, 'sensor_pin', fallback=self.PIN))
             self.GPIO_BCM = bool(self.config.get(self.NAME, 'gpio_bcm', fallback=self.GPIO_BCM))
-            cycle_sleep = int(self.config.get(self.NAME, 'cycle_sleep', fallback=0))
-            sensor_failed_notif = int(self.config.get(self.NAME, 'failed_notify', fallback=0))
-
-        if cycle_sleep:
-            self.SLEEP = cycle_sleep
-        else:
-            self.SLEEP = int(self.config.get('global', 'cycle_sleep', fallback=0))
-
-        if sensor_failed_notif:
-            self.FAILED_NOTIF = sensor_failed_notif
-        else:
-            self.FAILED_NOTIF = int(self.config.get('global', 'failed_notify', fallback=10))
+            self.SLEEP = float(self.config.get(self.NAME, 'cycle_sleep', fallback=self.SLEEP))
+            self.FAILED_NOTIF = int(self.config.get(self.NAME, 'failed_notify', fallback=self.FAILED_NOTIF))
 
         self.logger.debug('Sensor %s at cycle_sleep: %s.', self.NAME, self.SLEEP)
         self.logger.debug('Sensor %s at failed_notify: %s.', self.NAME, self.FAILED_NOTIF)
