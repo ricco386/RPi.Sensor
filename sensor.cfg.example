@@ -11,3 +11,11 @@ failed_notify = 10
 
 # time.sleep() in the infinite loop, in seconds
 cycle_sleep = 0.05
+
+[zabbix]
+server = zabbix-server.example.com
+hostname = monitored-rpi.example.com
+# Alternatively define and encryption
+tls-connect =  psk
+tls-psk-identity = PSK IDENTITY IN ZABBIX
+tls-psk-file = /etc/zabbix/zabbix_agentd.psk
