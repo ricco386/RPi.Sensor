@@ -20,8 +20,9 @@ class Sensor(object):
     GPIO_BCM = False
     FAILED = 0
     FAILED_NOTIF = 10
-    SLEEP = 0
+    SLEEP = 0.05
     EXIT = False
+    sensor_state = 0
 
     def __init__(self, name='Sensor', params=()):
         self.NAME = name
@@ -75,10 +76,10 @@ class Sensor(object):
             self.FAILED_NOTIF = params.failed_notify
             self.logger.debug('Sensor %s at failed_notify: %s (set by script parameter).', self.NAME, self.FAILED_NOTIF)
 
-    def gpio_setup(self, gpio_bcm=False):
+    def gpio_setup(self):
         self.GPIO = GPIO
 
-        if gpio_bcm:
+        if self.GPIO_BCM:
             self.GPIO.setmode(GPIO.BCM)
             self.logger.debug('Sensor %s mode set to GPIO.BCM.', self.NAME)
         else:
@@ -100,7 +101,7 @@ class Sensor(object):
         Helper function with code to be run before reading the sensor
         """
         if self.GPIO is None:
-            self.gpio_setup(self.GPIO_BCM)
+            self.gpio_setup()
 
     def sensor_read_callback(self):
         """
