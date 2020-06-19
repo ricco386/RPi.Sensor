@@ -19,3 +19,9 @@ hostname = monitored-rpi.example.com
 tls-connect =  psk
 tls-psk-identity = PSK IDENTITY IN ZABBIX
 tls-psk-file = /etc/zabbix/zabbix_agentd.psk
+
+[mqtt]
+broker_url = mqtt.example.com
+broker_port = 1883
+broker_username =
+broker_password =

@@ -5,7 +5,7 @@
 # files, which you should have received as part of this distribution.
 from distutils.core import setup
 
-DEPS = ['RPi.GPIO', 'wheel']
+DEPS = ['RPi.GPIO', 'wheel', 'paho-mqtt']
 
 CLASSIFIERS = [
     'Environment :: Console',

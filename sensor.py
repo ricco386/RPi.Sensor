@@ -9,7 +9,7 @@ import signal
 
 import RPi.GPIO as GPIO
 
-from utils import init_config_file, get_logging_config
+from utils import init_config_file, get_logging_config, mqtt_client
 
 
 class Sensor(object):
@@ -23,6 +23,7 @@ class Sensor(object):
     SLEEP = 0.05
     EXIT = False
     sensor_state = 0
+    mqtt_topic = ''
 
     def __init__(self, name='Sensor', params=()):
         self.NAME = name
@@ -37,6 +38,7 @@ class Sensor(object):
 
         self.setup_sensor()
         self.setup_args(params)  # Should overwrite the default options in config file
+        self.mqtt_client = mqtt_client(config)
 
     def exit_gracefully(self, signum, frame):
         self.EXIT = True
@@ -55,6 +57,7 @@ class Sensor(object):
             self.GPIO_BCM = bool(self.config.get(self.NAME, 'gpio_bcm', fallback=self.GPIO_BCM))
             self.SLEEP = float(self.config.get(self.NAME, 'cycle_sleep', fallback=self.SLEEP))
             self.FAILED_NOTIF = int(self.config.get(self.NAME, 'failed_notify', fallback=self.FAILED_NOTIF))
+            self.mqtt_topic = int(self.config.get(self.NAME, 'mqtt_topic', fallback=self.mqtt_topic))
 
         self.logger.debug('Sensor %s at cycle_sleep: %s.', self.NAME, self.SLEEP)
         self.logger.debug('Sensor %s at failed_notify: %s.', self.NAME, self.FAILED_NOTIF)
@@ -75,6 +78,10 @@ class Sensor(object):
         if hasattr(params, 'failed_notify') and params.failed_notify:
             self.FAILED_NOTIF = params.failed_notify
             self.logger.debug('Sensor %s at failed_notify: %s (set by script parameter).', self.NAME, self.FAILED_NOTIF)
+
+        if hasattr(params, 'mqtt_topic') and params.mqtt_topic:
+            self.mqtt_topic = params.mqtt_topic
+            self.logger.debug('Sensor %s at mqtt_topic: %s (set by script parameter).', self.NAME, self.mqtt_topic)
 
     def gpio_setup(self):
         self.GPIO = GPIO
@@ -136,3 +143,7 @@ class Sensor(object):
 
         self.gpio_cleanup()
         self.logger.info('Sensor %s has correctly finished sensing... BYE!', self.NAME)
+
+    def notify(self, topic='', payload=''):
+        if self.mqtt_client:
+            self.mqtt_client.publish(topic=topic, payload=payload, qos=1, retain=False)

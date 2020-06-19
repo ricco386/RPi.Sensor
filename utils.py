@@ -6,7 +6,8 @@
 import os
 import sys
 import logging
-import  subprocess
+import subprocess
+import paho.mqtt.client as mqtt
 
 from configparser import ConfigParser
 
@@ -86,3 +87,17 @@ def zabbix_sender(config, trapper_item, value):
 
         process = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         stdout, stderr = process.communicate()
+
+
+def mqtt_client(config):
+    if 'mqtt' in config:
+        client = mqtt.Client()
+
+        if config['mqtt']['broker_url'] and config['mqtt']['broker_port']:
+            client.username_pw_set(username="mqtt", password="mqtt")
+
+        client.connect(config['mqtt']['broker_url'], config['mqtt']['broker_port'])
+    else:
+        client = None
+
+    return client
