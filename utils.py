@@ -96,7 +96,7 @@ def mqtt_client(config):
         if config['mqtt']['broker_url'] and config['mqtt']['broker_port']:
             client.username_pw_set(username="mqtt", password="mqtt")
 
-        client.connect(config['mqtt']['broker_url'], config['mqtt']['broker_port'])
+        client.connect(config['mqtt']['broker_url'], int(config['mqtt']['broker_port']))
     else:
         client = None
 
