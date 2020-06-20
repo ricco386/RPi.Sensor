@@ -38,7 +38,7 @@ class Sensor(object):
 
         self.setup_sensor()
         self.setup_args(params)  # Should overwrite the default options in config file
-        self.mqtt_client = mqtt_client(config)
+        self.mqtt_client = mqtt_client(self.config)
 
     def exit_gracefully(self, signum, frame):
         self.EXIT = True
@@ -57,7 +57,7 @@ class Sensor(object):
             self.GPIO_BCM = bool(self.config.get(self.NAME, 'gpio_bcm', fallback=self.GPIO_BCM))
             self.SLEEP = float(self.config.get(self.NAME, 'cycle_sleep', fallback=self.SLEEP))
             self.FAILED_NOTIF = int(self.config.get(self.NAME, 'failed_notify', fallback=self.FAILED_NOTIF))
-            self.mqtt_topic = int(self.config.get(self.NAME, 'mqtt_topic', fallback=self.mqtt_topic))
+            self.mqtt_topic = self.config.get(self.NAME, 'mqtt_topic', fallback=self.mqtt_topic)
 
         self.logger.debug('Sensor %s at cycle_sleep: %s.', self.NAME, self.SLEEP)
         self.logger.debug('Sensor %s at failed_notify: %s.', self.NAME, self.FAILED_NOTIF)
