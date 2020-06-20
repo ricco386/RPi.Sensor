@@ -89,12 +89,12 @@ def zabbix_sender(config, trapper_item, value):
         stdout, stderr = process.communicate()
 
 
-def mqtt_client(config):
+def init_mqtt_client(config):
     if 'mqtt' in config:
         client = mqtt.Client()
 
-        if config['mqtt']['broker_url'] and config['mqtt']['broker_port']:
-            client.username_pw_set(username="mqtt", password="mqtt")
+        if config['mqtt']['username'] and config['mqtt']['password']:
+            client.username_pw_set(username=config['mqtt']['username'], password=config['mqtt']['password'])
 
         client.connect(config['mqtt']['broker_url'], int(config['mqtt']['broker_port']))
     else:

@@ -9,7 +9,7 @@ import signal
 
 import RPi.GPIO as GPIO
 
-from utils import init_config_file, get_logging_config, mqtt_client
+from utils import init_config_file, get_logging_config, init_mqtt_client
 
 
 class Sensor(object):
@@ -38,7 +38,7 @@ class Sensor(object):
 
         self.setup_sensor()
         self.setup_args(params)  # Should overwrite the default options in config file
-        self.mqtt_client = mqtt_client(self.config)
+        self.mqtt_client = init_mqtt_client(self.config)
 
     def exit_gracefully(self, signum, frame):
         self.EXIT = True
