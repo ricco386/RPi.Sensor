@@ -9,7 +9,9 @@ import signal
 
 import RPi.GPIO as GPIO
 
-from utils import init_config_file, get_logging_config, init_mqtt_client
+from .config import init_config_file
+from .logging import get_logging_config
+from .mqtt import init_mqtt_client
 
 
 class Sensor(object):
