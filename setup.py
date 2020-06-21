@@ -1,9 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
 # This software is licensed as described in the README.rst and LICENSE
 # files, which you should have received as part of this distribution.
 import setuptools
+# noinspection PyPep8Naming
+from raspi_sensor import __version__ as VERSION
 
 DEPS = ['RPi.GPIO', 'wheel', 'paho-mqtt']
 
@@ -29,9 +31,9 @@ with open("README.rst", "r") as fp:
 
 setuptools.setup(
     name="RPi.Sensor",
-    version="0.4.0a",
+    version=VERSION,
     author="Richard von Kellner",
-    author_email="richard.kellner@gmail.com",
+    author_email="richard.kellner [at] gmail.com",
     url="https://github.com/ricco386/RPi.Sensor",
     description="Python base class to create infinite loop to work with sensors.",
     long_description=sensor_long_description,

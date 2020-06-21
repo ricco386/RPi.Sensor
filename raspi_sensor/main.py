@@ -8,7 +8,7 @@ from .sensor import Sensor
 
 
 def setup_default_args(ap):
-    ap.add_argument('-p', '--pin', type=int, help='GPIO pin number..')
+    ap.add_argument('-p', '--pin', type=int, help='GPIO pin number.')
     ap.add_argument('-s', '--status', action='store_true', help='Get current sensor reading.')
     ap.add_argument('--gpio_bcm', action='store_true', help='Switch PIN numbers to GPIO BCM numbering.')
     ap.add_argument('--failed_notify', type=int, help='Number of failed sensor reading before alerting.')
@@ -19,9 +19,9 @@ def setup_default_args(ap):
 
 
 def setup_args():
-    ap = argparse.ArgumentParser(prog='raspi-sensor', description='''Python base class to create infinite loop to work 
-    with sensors. Script loads configuration from sensor.cfg that has to be created and run in infinte loop. For more
-    info visit: https://github.com/ricco386/RPi.Sensor''')
+    ap = argparse.ArgumentParser(prog='raspi-sensor',
+                                 description='Python base class to create infinite loop to work with sensors. For more '
+                                             'info visit: https://github.com/ricco386/RPi.Sensor')
     setup_default_args(ap)
 
     return ap.parse_args()
