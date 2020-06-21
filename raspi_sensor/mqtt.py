@@ -10,8 +10,9 @@ def init_mqtt_client(config):
     if 'mqtt' in config:
         client = mqtt.Client()
 
-        if config['mqtt']['username'] and config['mqtt']['password']:
-            client.username_pw_set(username=config['mqtt']['username'], password=config['mqtt']['password'])
+        if config['mqtt']['broker_username'] and config['mqtt']['broker_password']:
+            client.username_pw_set(username=config['mqtt']['broker_username'],
+                                   password=config['mqtt']['broker_password'])
 
         client.connect(config['mqtt']['broker_url'], int(config['mqtt']['broker_port']))
     else:
