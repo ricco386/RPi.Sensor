@@ -7,15 +7,21 @@ import argparse
 from sensor import Sensor
 
 
-def setup_args():
-    ap = argparse.ArgumentParser(prog='rpi-sensor', description='''Python base class to create infinite loop to work 
-    with sensors. Script loads configuration from sensor.cfg that has to be created and run in infinte loop. For more
-    info visit: https://github.com/ricco386/RPi.Sensor''')
+def setup_default_args(ap):
     ap.add_argument('-p', '--pin', type=int, help='GPIO pin number..')
     ap.add_argument('--gpio_bcm', action='store_true', help='Switch PIN numbers to GPIO BCM numbering.')
     ap.add_argument('--failed_notify', type=int, help='Number of failed sensor reading before alerting.')
     ap.add_argument('--cycle_sleep', type=int, help='Number of failed sensor reading before alerting.')
     ap.add_argument('--mqtt_topic', type=str, help='Set topic for MQTT where sensor will publish data.')
+
+    return ap
+
+
+def setup_args():
+    ap = argparse.ArgumentParser(prog='rpi-sensor', description='''Python base class to create infinite loop to work 
+    with sensors. Script loads configuration from sensor.cfg that has to be created and run in infinte loop. For more
+    info visit: https://github.com/ricco386/RPi.Sensor''')
+    setup_default_args(ap)
 
     return ap.parse_args()
 

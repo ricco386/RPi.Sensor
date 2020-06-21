@@ -49,8 +49,8 @@ class Sensor(object):
         Initial function to configure sensor before the main infinite loop
         """
         self.logger.debug('Sensor %s initial setup.', self.NAME)
-        self.SLEEP = float(self.config.get('global', 'cycle_sleep', fallback=0.05))
-        self.FAILED_NOTIF = int(self.config.get('global', 'failed_notify', fallback=10))
+        self.SLEEP = float(self.config.get('global', 'cycle_sleep', fallback=self.SLEEP))
+        self.FAILED_NOTIF = int(self.config.get('global', 'failed_notify', fallback=self.FAILED_NOTIF))
 
         if self.NAME in self.config:
             self.PIN = int(self.config.get(self.NAME, 'sensor_pin', fallback=self.PIN))

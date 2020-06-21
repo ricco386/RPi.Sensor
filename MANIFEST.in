@@ -1,5 +1,0 @@
-include README.rst
-include LICENSE
-include main.py
-include sensor.py
-include utils.py
