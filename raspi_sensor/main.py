@@ -9,6 +9,7 @@ from .sensor import Sensor
 
 def setup_default_args(ap):
     ap.add_argument('-p', '--pin', type=int, help='GPIO pin number..')
+    ap.add_argument('-s', '--status', action='store_true', help='Get current sensor reading.')
     ap.add_argument('--gpio_bcm', action='store_true', help='Switch PIN numbers to GPIO BCM numbering.')
     ap.add_argument('--failed_notify', type=int, help='Number of failed sensor reading before alerting.')
     ap.add_argument('--cycle_sleep', type=int, help='Number of failed sensor reading before alerting.')
@@ -18,7 +19,7 @@ def setup_default_args(ap):
 
 
 def setup_args():
-    ap = argparse.ArgumentParser(prog='rpi-sensor', description='''Python base class to create infinite loop to work 
+    ap = argparse.ArgumentParser(prog='raspi-sensor', description='''Python base class to create infinite loop to work 
     with sensors. Script loads configuration from sensor.cfg that has to be created and run in infinte loop. For more
     info visit: https://github.com/ricco386/RPi.Sensor''')
     setup_default_args(ap)
@@ -34,8 +35,10 @@ def main():
 
     s = Sensor(name=name, params=params)
 
-    s.sensor_read()  # If you want to read just  once
-    s.sense()  # Start infinite loop (You can finish by CTRL+C or send kill signal)
+    if hasattr(params, 'status') and params.status:
+        s.sensor_read()  # If you want to read just  once
+    else:
+        s.sense()  # Start infinite loop (You can finish by CTRL+C or send kill signal)
 
 
 if __name__ == "__main__":
