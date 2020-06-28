@@ -12,7 +12,7 @@ import RPi.GPIO as GPIO
 from math import inf
 
 from .config import init_config_file
-from .logging import get_logging_config
+from .logging import get_logging_config, get_journald_handler
 from .mqtt import init_mqtt_client
 
 
@@ -37,6 +37,11 @@ class Sensor(object):
         # Setup logging
         self.logger = logging.getLogger(self.NAME)
         logging.basicConfig(**get_logging_config(self.config, self.NAME))
+        journald_handler = get_journald_handler()
+
+        if journald_handler:
+            # add the journald handler to the current logger
+            logger.addHandler(journald_handler)
 
         signal.signal(signal.SIGINT, self.exit_gracefully)
         signal.signal(signal.SIGTERM, self.exit_gracefully)

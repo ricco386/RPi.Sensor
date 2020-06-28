@@ -8,6 +8,21 @@ import logging
 LOG_LEVELS = frozenset(['DEBUG', 'INFO', 'WARN', 'WARNING', 'ERROR', 'FATAL', 'CRITICAL'])
 
 
+def get_journald_handler():
+    try:
+        from systemd.journal import JournaldLogHandler
+    except ImportError:
+        return None
+
+    # instantiate the JournaldLogHandler to hook into systemd
+    journald_handler = JournaldLogHandler()
+    journald_handler.setFormatter(logging.Formatter(
+        '[%(levelname)s] %(message)s'
+    ))
+
+    return journald_handler
+
+
 def parse_loglevel(name):
     """
     Parse log level name and return log level integer value
