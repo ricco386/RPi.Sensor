@@ -43,7 +43,22 @@ class Sensor(object):
 
         self.setup_sensor()
         self.setup_args(params)  # Should overwrite the default options in config file
-        self.mqtt_client = init_mqtt_client(self.config)
+        self.mqtt_connect()
+
+    def mqtt_connect(self):
+        if 'mqtt' not in config:
+            self.mqtt_client = None
+        else:
+            self.mqtt_client = init_mqtt_client(self.config, logger=self.logger)
+
+            try:
+                if self.mqtt_client:
+                    self.mqtt_client.connect(config['mqtt']['broker_url'], int(config['mqtt']['broker_port']))
+            except RuntimeError as e:
+                self.logger.error('MQTT error - %s', e)
+                self.mqtt_client = None
+            else:
+                self.logger.info('MQTT connection successful.')
 
     def exit_gracefully(self, signum, frame):
         self.EXIT = True
@@ -162,5 +177,5 @@ class Sensor(object):
         self.logger.info('Sensor %s has correctly finished sensing... BYE!', self.NAME)
 
     def notify(self, topic='', payload=''):
-        if self.mqtt_client:
+        if self.mqtt_client and topic and payload:
             self.mqtt_client.publish(topic=topic, payload=payload, qos=1, retain=False)
