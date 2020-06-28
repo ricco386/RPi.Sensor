@@ -51,7 +51,7 @@ class Sensor(object):
         self.mqtt_connect()
 
     def mqtt_connect(self):
-        if 'mqtt' not in config:
+        if 'mqtt' not in self.config:
             self.mqtt_client = None
         else:
             self.mqtt_client = init_mqtt_client(self.config, logger=self.logger)
