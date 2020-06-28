@@ -8,6 +8,8 @@ loglevel = INFO
 
 # Notify after X failed sensor readings
 failed_notify = 10
+# Exit after X failed sensor readings
+failed_exit = 15  # Remove from config to set to infinity
 
 # time.sleep() in the infinite loop, in seconds
 cycle_sleep = 0.05

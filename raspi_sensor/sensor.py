@@ -6,8 +6,10 @@
 import logging
 import time
 import signal
+import sys
 
 import RPi.GPIO as GPIO
+from math import inf
 
 from .config import init_config_file
 from .logging import get_logging_config
@@ -22,6 +24,7 @@ class Sensor(object):
     GPIO_BCM = False
     FAILED = 0
     FAILED_NOTIF = 10
+    FAILED_EXIT = inf
     SLEEP = 0.05
     EXIT = False
     sensor_state = 0
@@ -53,16 +56,19 @@ class Sensor(object):
         self.logger.debug('Sensor %s initial setup.', self.NAME)
         self.SLEEP = float(self.config.get('global', 'cycle_sleep', fallback=self.SLEEP))
         self.FAILED_NOTIF = int(self.config.get('global', 'failed_notify', fallback=self.FAILED_NOTIF))
+        self.FAILED_EXIT = int(self.config.get('global', 'failed_exit', fallback=self.FAILED_EXIT))
 
         if self.NAME in self.config:
             self.PIN = int(self.config.get(self.NAME, 'sensor_pin', fallback=self.PIN))
             self.GPIO_BCM = bool(self.config.get(self.NAME, 'gpio_bcm', fallback=self.GPIO_BCM))
             self.SLEEP = float(self.config.get(self.NAME, 'cycle_sleep', fallback=self.SLEEP))
             self.FAILED_NOTIF = int(self.config.get(self.NAME, 'failed_notify', fallback=self.FAILED_NOTIF))
+            self.FAILED_EXIT = int(self.config.get(self.NAME, 'failed_exit', fallback=self.FAILED_EXIT))
             self.mqtt_topic = self.config.get(self.NAME, 'mqtt_topic', fallback=self.mqtt_topic)
 
         self.logger.debug('Sensor %s at cycle_sleep: %s.', self.NAME, self.SLEEP)
         self.logger.debug('Sensor %s at failed_notify: %s.', self.NAME, self.FAILED_NOTIF)
+        self.logger.debug('Sensor %s at failed_exit: %s.', self.NAME, self.FAILED_EXIT)
 
     def setup_args(self, params):
         if hasattr(params, 'pin') and params.pin:
@@ -80,6 +86,10 @@ class Sensor(object):
         if hasattr(params, 'failed_notify') and params.failed_notify:
             self.FAILED_NOTIF = params.failed_notify
             self.logger.debug('Sensor %s at failed_notify: %s (set by script parameter).', self.NAME, self.FAILED_NOTIF)
+
+        if hasattr(params, 'failed_exit') and params.failed_exit:
+            self.FAILED_EXIT = params.failed_exit
+            self.logger.debug('Sensor %s at failed_exit: %s (set by script parameter).', self.NAME, self.FAILED_EXIT)
 
         if hasattr(params, 'mqtt_topic') and params.mqtt_topic:
             self.mqtt_topic = params.mqtt_topic
@@ -125,6 +135,11 @@ class Sensor(object):
         if self.FAILED >= self.FAILED_NOTIF:
             self.logger.warning('Sensor reading has failed %s in a row.' % self.FAILED)
             self.failed_notification_callback()
+
+        if self.FAILED >= self.FAILED_EXIT:
+            self.logger.error('Sensor reading has failed. Exit!')
+            self.gpio_cleanup()
+            sys.exit(1)
 
     def sensor_read(self):
         self.pre_sensor_read_callback()
