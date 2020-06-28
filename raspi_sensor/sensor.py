@@ -58,7 +58,7 @@ class Sensor(object):
 
             try:
                 if self.mqtt_client:
-                    self.mqtt_client.connect(config['mqtt']['broker_url'], int(config['mqtt']['broker_port']))
+                    self.mqtt_client.connect(self.config['mqtt']['broker_url'], int(self.config['mqtt']['broker_port']))
             except RuntimeError as e:
                 self.logger.error('MQTT error - %s', e)
                 self.mqtt_client = None
