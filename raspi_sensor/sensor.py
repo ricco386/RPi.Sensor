@@ -71,14 +71,14 @@ class Sensor(object):
         self.logger.debug('Sensor %s initial setup.', self.NAME)
         self.SLEEP = float(self.config.get('global', 'cycle_sleep', fallback=self.SLEEP))
         self.FAILED_NOTIF = int(self.config.get('global', 'failed_notify', fallback=self.FAILED_NOTIF))
-        self.FAILED_EXIT = int(self.config.get('global', 'failed_exit', fallback=self.FAILED_EXIT))
+        self.FAILED_EXIT = float(self.config.get('global', 'failed_exit', fallback=self.FAILED_EXIT))
 
         if self.NAME in self.config:
             self.PIN = int(self.config.get(self.NAME, 'sensor_pin', fallback=self.PIN))
             self.GPIO_BCM = bool(self.config.get(self.NAME, 'gpio_bcm', fallback=self.GPIO_BCM))
             self.SLEEP = float(self.config.get(self.NAME, 'cycle_sleep', fallback=self.SLEEP))
             self.FAILED_NOTIF = int(self.config.get(self.NAME, 'failed_notify', fallback=self.FAILED_NOTIF))
-            self.FAILED_EXIT = int(self.config.get(self.NAME, 'failed_exit', fallback=self.FAILED_EXIT))
+            self.FAILED_EXIT = float(self.config.get(self.NAME, 'failed_exit', fallback=self.FAILED_EXIT))
             self.mqtt_topic = self.config.get(self.NAME, 'mqtt_topic', fallback=self.mqtt_topic)
 
         self.logger.debug('Sensor %s at cycle_sleep: %s.', self.NAME, self.SLEEP)
