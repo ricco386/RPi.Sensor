@@ -13,7 +13,7 @@ from math import inf
 
 from .config import init_config_file
 from .logging import get_logging_config, get_journald_handler
-from .mqtt import init_mqtt_client
+from .mqtt import mqtt_init_client, mqtt_connect
 
 
 class Sensor(object):
@@ -52,22 +52,8 @@ class Sensor(object):
         if 'mqtt' not in self.config:
             self.mqtt_client = None
         else:
-            self.mqtt_client = init_mqtt_client(self.config, logger=self.logger)
-            self.mqtt_connect()
-
-    def mqtt_connect(self):
-        try:
-            if self.mqtt_client.disconnected_flag:
-                self.mqtt_client.reconnect()
-            else:
-                self.mqtt_client.connect(self.config['mqtt']['broker_url'], int(self.config['mqtt']['broker_port']),
-                                         keepalive=self.config.get('mqtt', 'broker_keepalive', fallback=60))
-        except RuntimeError as e:
-            self.logger.error('MQTT error - %s', e)
-        except AttributeError as e:
-            self.logger.error('MQTT broker is NOT defined in config!', e)
-        else:
-            self.logger.info('MQTT connection successful.')
+            self.mqtt_client = mqtt_init_client(self.config, logger=self.logger)
+            mqtt_connect(self.mqtt_client, self.config)
 
     def exit_gracefully(self, signum, frame):
         self.EXIT = True
@@ -76,7 +62,6 @@ class Sensor(object):
     def exit_callback(self):
         if self.mqtt_client:
             self.mqtt_client.disconnect()
-            self.logger.debug('MQTT disconnected.')
 
         self.gpio_cleanup()
 
@@ -195,8 +180,7 @@ class Sensor(object):
     def notify(self, topic='', payload=''):
         if self.mqtt_client and topic and payload:
 
-            if not self.mqtt_client.connected_flag:
-                self.mqtt_connect()
+            if not mqtt_client.is_connected():
+                self.mqtt_client.reconnect()
 
-            if self.mqtt_client.connected_flag:
-                self.mqtt_client.publish(topic=topic, payload=payload, qos=1, retain=False)
+            self.mqtt_client.publish(topic=topic, payload=payload, qos=1, retain=False)
