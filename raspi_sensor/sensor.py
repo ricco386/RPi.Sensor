@@ -61,7 +61,7 @@ class Sensor(object):
                 self.mqtt_client.reconnect()
             else:
                 self.mqtt_client.connect(self.config['mqtt']['broker_url'], int(self.config['mqtt']['broker_port']),
-                                         keepalive=config.get('mqtt', 'broker_keepalive', fallback=60))
+                                         keepalive=self.config.get('mqtt', 'broker_keepalive', fallback=60))
         except RuntimeError as e:
             self.logger.error('MQTT error - %s', e)
         except AttributeError as e:
