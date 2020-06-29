@@ -180,7 +180,7 @@ class Sensor(object):
     def notify(self, topic='', payload=''):
         if self.mqtt_client and topic and payload:
 
-            if not mqtt_client.is_connected():
+            if not self.mqtt_client.is_connected():
                 self.mqtt_client.reconnect()
 
             self.mqtt_client.publish(topic=topic, payload=payload, qos=1, retain=False)

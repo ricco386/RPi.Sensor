@@ -46,7 +46,7 @@ def mqtt_init_client(config, logger=None):
 
 def mqtt_connect(client, config):
     try:
-        if client == mqtt.mqtt_cs_new:
+        if client._state == mqtt.mqtt_cs_new:
             client.connect(config['mqtt']['broker_url'], int(config['mqtt']['broker_port']),
                            keepalive=config.get('mqtt', 'broker_keepalive', fallback=60))
         elif not client.is_connected():
