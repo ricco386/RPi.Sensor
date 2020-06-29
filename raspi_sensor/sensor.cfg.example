@@ -27,3 +27,4 @@ broker_url = mqtt.example.com
 broker_port = 1883
 broker_username =
 broker_password =
+broker_keepalive = 120

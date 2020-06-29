@@ -48,26 +48,37 @@ class Sensor(object):
 
         self.setup_sensor()
         self.setup_args(params)  # Should overwrite the default options in config file
-        self.mqtt_connect()
 
-    def mqtt_connect(self):
         if 'mqtt' not in self.config:
             self.mqtt_client = None
         else:
             self.mqtt_client = init_mqtt_client(self.config, logger=self.logger)
+            self.mqtt_connect()
 
-            try:
-                if self.mqtt_client:
-                    self.mqtt_client.connect(self.config['mqtt']['broker_url'], int(self.config['mqtt']['broker_port']))
-            except RuntimeError as e:
-                self.logger.error('MQTT error - %s', e)
-                self.mqtt_client = None
+    def mqtt_connect(self):
+        try:
+            if self.mqtt_client.disconnected_flag:
+                self.mqtt_client.reconnect()
             else:
-                self.logger.info('MQTT connection successful.')
+                self.mqtt_client.connect(self.config['mqtt']['broker_url'], int(self.config['mqtt']['broker_port']),
+                                         keepalive=config.get('mqtt', 'broker_keepalive', fallback=60))
+        except RuntimeError as e:
+            self.logger.error('MQTT error - %s', e)
+        except AttributeError as e:
+            self.logger.error('MQTT broker is NOT defined in config!', e)
+        else:
+            self.logger.info('MQTT connection successful.')
 
     def exit_gracefully(self, signum, frame):
         self.EXIT = True
         self.logger.info('Sensor %s received interrupt signal.', self.NAME)
+
+    def exit_callback(self):
+        if self.mqtt_client:
+            self.mqtt_client.disconnect()
+            self.logger.debug('MQTT disconnected.')
+
+        self.gpio_cleanup()
 
     def setup_sensor(self):
         """
@@ -157,8 +168,8 @@ class Sensor(object):
             self.failed_notification_callback()
 
         if self.FAILED >= self.FAILED_EXIT:
-            self.logger.error('Sensor reading has failed. Exit!')
-            self.gpio_cleanup()
+            self.logger.error('Sensor reading has failed to many times... Exit!')
+            self.exit_callback()
             sys.exit(1)
 
     def sensor_read(self):
@@ -178,9 +189,14 @@ class Sensor(object):
             if self.SLEEP:
                 time.sleep(self.SLEEP)
 
-        self.gpio_cleanup()
+        self.exit_callback()
         self.logger.info('Sensor %s has correctly finished sensing... BYE!', self.NAME)
 
     def notify(self, topic='', payload=''):
         if self.mqtt_client and topic and payload:
-            self.mqtt_client.publish(topic=topic, payload=payload, qos=1, retain=False)
+
+            if not self.mqtt_client.connected_flag:
+                self.mqtt_connect()
+
+            if self.mqtt_client.connected_flag:
+                self.mqtt_client.publish(topic=topic, payload=payload, qos=1, retain=False)

@@ -7,8 +7,11 @@ import paho.mqtt.client as mqtt
 
 
 def on_connect(client, userdata, flags, rc):
+    client.connected_flag = False
+
     if rc == 0:
         client.connected_flag = True
+        client.disconnected_flag = False
     elif rc == 1:
         raise RuntimeError("connection failed: incorrect protocol version")
     elif rc == 2:
@@ -23,9 +26,17 @@ def on_connect(client, userdata, flags, rc):
         raise RuntimeError("connection failed: returned code=", rc)
 
 
+def on_disconnect(client, userdata, rc):
+    client.connected_flag = False
+    client.disconnected_flag = True
+
+
 def init_mqtt_client(config, logger=None):
     client = mqtt.Client()
+    client.connected_flag = False
+    client.disconnected_flag = False
     client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
 
     if logger:
         client.enable_logger(logger)
