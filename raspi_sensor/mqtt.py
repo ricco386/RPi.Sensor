@@ -54,3 +54,27 @@ def mqtt_connect(client, config):
 
     except RuntimeError as e:
         client._easy_log(mqtt.MQTT_LOG_ERROR, 'MQTT error - %s', e)
+
+
+def mqtt_notify(client, topic=None, payload=None):
+    if client and topic is not None and payload is not None:
+
+        if not client.is_connected():
+            client.reconnect()
+
+        client.publish(topic=topic, payload=payload, qos=1, retain=False)
+
+
+def mqtt_availability(client, topic='', available=True):
+    if available:
+        payload = 1
+    else:
+        payload = 0
+
+    if not topic.endswith('availability'):
+        if topic.endswith('/'):
+            topic += 'availability'
+        else:
+            topic += '/availability'
+
+    client.publish(topic=topic, payload=payload, qos=1, retain=False)

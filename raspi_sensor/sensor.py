@@ -13,7 +13,7 @@ from math import inf
 
 from .config import init_config_file
 from .logging import get_logging_config, get_journald_handler
-from .mqtt import mqtt_init_client, mqtt_connect
+from .mqtt import mqtt_init_client, mqtt_connect, mqtt_availability, mqtt_notify
 
 
 class Sensor(object):
@@ -54,6 +54,7 @@ class Sensor(object):
         else:
             self.mqtt_client = mqtt_init_client(self.config, logger=self.logger)
             mqtt_connect(self.mqtt_client, self.config)
+            mqtt_availability(self.mqtt_client, topic=self.mqtt_topic, available=True)
 
     def exit_gracefully(self, signum, frame):
         self.EXIT = True
@@ -61,6 +62,7 @@ class Sensor(object):
 
     def exit_callback(self):
         if self.mqtt_client:
+            mqtt_availability(self.mqtt_client, topic=self.mqtt_topic, available=False)
             self.mqtt_client.disconnect()
 
         self.gpio_cleanup()
@@ -129,7 +131,8 @@ class Sensor(object):
         self.logger.debug('Sensor %s GPIO cleanup.', self.NAME)
 
     def failed_notification_callback(self):
-        pass
+        if self.mqtt_client:
+            mqtt_availability(self.mqtt_client, topic=self.mqtt_topic, available=False)
 
     def pre_sensor_read_callback(self):
         """
@@ -158,6 +161,9 @@ class Sensor(object):
         """
         Helper function with code to be run after reading the sensor
         """
+        if self.FAILED == 0 and self.mqtt_client:
+            mqtt_availability(self.mqtt_client, topic=self.mqtt_topic, available=True)
+
         if self.FAILED >= self.FAILED_NOTIF:
             self.logger.warning('Sensor reading has failed %s in a row.' % self.FAILED)
             self.failed_notification_callback()
@@ -188,9 +194,5 @@ class Sensor(object):
         self.logger.info('Sensor %s has correctly finished sensing... BYE!', self.NAME)
 
     def notify(self, topic=None, payload=None):
-        if self.mqtt_client and topic is not None and payload is not None:
-
-            if not self.mqtt_client.is_connected():
-                self.mqtt_client.reconnect()
-
-            self.mqtt_client.publish(topic=topic, payload=payload, qos=1, retain=False)
+        if self.mqtt_client:
+            mqtt_notify(self.mqtt_client, topic=topic, payload=payload)
