@@ -187,8 +187,8 @@ class Sensor(object):
         self.exit_callback()
         self.logger.info('Sensor %s has correctly finished sensing... BYE!', self.NAME)
 
-    def notify(self, topic='', payload=''):
-        if self.mqtt_client and topic and payload:
+    def notify(self, topic=None, payload=None):
+        if self.mqtt_client and topic is not None and payload is not None:
 
             if not self.mqtt_client.is_connected():
                 self.mqtt_client.reconnect()
