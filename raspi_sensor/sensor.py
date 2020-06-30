@@ -138,6 +138,16 @@ class Sensor(object):
         if self.GPIO is None:
             self.gpio_setup()
 
+    @staticmethod
+    def calculate_change_percentage(value, previous_value):
+        if previous_value is None or value is None:
+            percentage = 0
+        else:
+            difference = previous_value - value
+            percentage = difference / value * 100
+
+        return percentage
+
     def sensor_read_callback(self):
         """
         Implement logic for actual sensor reading
