@@ -32,7 +32,12 @@ broker_username =
 broker_password =
 
 # Broker connection parameters
-broker_keepalive = 120
+# Maximum period in seconds between communications with the broker. If no other messages are being exchanged,
+# this controls the rate at which the client will send ping messages to the broker.
+broker_keepalive = 660
+
+# Period in seconds when the sensor will send an availability message to the broker
+availability_notif_period = 600
 
 [Sensor NAME]
 # For each sensor specified by its NAME (parameter of an __init__ function) you can override any of the global defaults.

@@ -3,6 +3,7 @@
 #
 # This software is licensed as described in the README.rst and LICENSE files,
 # which you should have received as part of this distribution.
+from datetime import datetime, timedelta
 import paho.mqtt.client as mqtt
 
 from .sensor import Sensor
@@ -14,7 +15,9 @@ class MqttSensor(Sensor):
     topic = ''
     broker_url = ''
     broker_port = 1883
-    broker_keepalive = 5
+    broker_keepalive = 660
+    availability_notif_period = 600
+    last_availability_notif = None
 
     def __init__(self, name='MQTT Sensor'):
         super().__init__(name=name)
@@ -24,6 +27,8 @@ class MqttSensor(Sensor):
 
         self.broker_url = self.config.get('mqtt', 'broker_url')
         self.broker_port = int(self.config.get('mqtt', 'broker_port', fallback=self.broker_port))
+        self.availability_notif_period = int(self.config.get('mqtt', 'availability_notif_period',
+                                                             fallback=self.availability_notif_period))
 
         self.client = mqtt.Client()
         self.client.on_connect = self.on_connect
@@ -38,6 +43,11 @@ class MqttSensor(Sensor):
             self.topic = self.config.get(self.NAME, 'mqtt_topic', fallback=None)
             self.logger.debug('Sensor %s MQTT topic: %s', self.NAME, self.topic)
 
+            self.availability_notif_period = int(self.config.get(self.NAME, 'availability_notif_period',
+                                                                 fallback=self.availability_notif_period))
+
+        self.logger.debug('Sensor %s periodic availability message will be sent to MQTT broker every %s minutes.',
+                          self.NAME, self.availability_notif_period)
         self.connect()
 
     def setup_args(self, params):
@@ -92,21 +102,15 @@ class MqttSensor(Sensor):
             except RuntimeError as e:
                 self.client._easy_log(mqtt.MQTT_LOG_ERROR, 'MQTT error - %s', e)
 
-            # self.publish_availability()
-
     def publish(self, topic=None, payload=None):
         if topic is None:
             topic = self.topic
 
-        # self.reconnect()
-
         return self.client.publish(topic=topic, payload=payload, qos=1, retain=False)
 
     def publish_availability(self, available=True):
-        if available:
-            payload = 1
-        else:
-            payload = 0
+        payload = 1 if available else 0
+        self.reconnect()
 
         return self.publish(topic=f'{self.topic}/availability', payload=payload)
 
@@ -122,7 +126,8 @@ class MqttSensor(Sensor):
     def post_sensor_read_callback(self):
         super().post_sensor_read_callback()
 
-        if self.FAILED == 0:
+        if self.FAILED == 0 \
+                and self.last_availability_notif + timedelta(seconds=self.availability_notif_period) < datetime.now():
             self.publish_availability(available=True)
 
     def notify(self, topic=None, payload=None):
