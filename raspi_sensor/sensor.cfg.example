@@ -1,15 +1,15 @@
 [global]
-# Log file (required)
-# Empty value means logging to stdout
+# Log file, remove from config to log to stdout
+# If run as a systemd service, log to stdout to use journald as a storage
 logfile = /tmp/sensor.log
 
-# Log level (required)
+# Log level, default INFO if not specified in config
 loglevel = INFO
 
 # Notify after X failed sensor readings
 failed_notify = 10
-# Exit after X failed sensor readings
-failed_exit = 15  # Remove from config to set to infinity
+# Exit after X failed sensor readings, remove from config to set to infinity
+failed_exit = 15
 
 # time.sleep() in the infinite loop, in seconds
 cycle_sleep = 0.05
