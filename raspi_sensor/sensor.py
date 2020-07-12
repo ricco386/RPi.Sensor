@@ -13,7 +13,6 @@ from math import inf
 
 from .config import init_config_file
 from .logging import get_logging_config, get_journald_handler
-from .mqtt import mqtt_init_client, mqtt_connect, mqtt_availability, mqtt_notify
 
 
 class Sensor(object):
@@ -28,7 +27,6 @@ class Sensor(object):
     SLEEP = 0.05
     EXIT = False
     sensor_state = 0
-    mqtt_topic = ''
 
     def __init__(self, name='Sensor', params=()):
         self.NAME = name
@@ -49,29 +47,18 @@ class Sensor(object):
         self.setup_sensor()
         self.setup_args(params)  # Should overwrite the default options in config file
 
-        if 'mqtt' not in self.config:
-            self.mqtt_client = None
-        else:
-            self.mqtt_client = mqtt_init_client(self.config, logger=self.logger)
-            mqtt_connect(self.mqtt_client, self.config)
-            mqtt_availability(self.mqtt_client, topic=self.mqtt_topic, available=True)
-
     def exit_gracefully(self, signum, frame):
         self.EXIT = True
-        self.logger.info('Sensor %s received interrupt signal.', self.NAME)
+        self.logger.info('Sensor %s received interrupt signal', self.NAME)
 
     def exit_callback(self):
-        if self.mqtt_client:
-            mqtt_availability(self.mqtt_client, topic=self.mqtt_topic, available=False)
-            self.mqtt_client.disconnect()
-
         self.gpio_cleanup()
 
     def setup_sensor(self):
         """
         Initial function to configure sensor before the main infinite loop
         """
-        self.logger.debug('Sensor %s initial setup.', self.NAME)
+        self.logger.debug('Sensor %s initial setup', self.NAME)
         self.SLEEP = float(self.config.get('global', 'cycle_sleep', fallback=self.SLEEP))
         self.FAILED_NOTIF = int(self.config.get('global', 'failed_notify', fallback=self.FAILED_NOTIF))
         self.FAILED_EXIT = float(self.config.get('global', 'failed_exit', fallback=self.FAILED_EXIT))
@@ -82,57 +69,51 @@ class Sensor(object):
             self.SLEEP = float(self.config.get(self.NAME, 'cycle_sleep', fallback=self.SLEEP))
             self.FAILED_NOTIF = int(self.config.get(self.NAME, 'failed_notify', fallback=self.FAILED_NOTIF))
             self.FAILED_EXIT = float(self.config.get(self.NAME, 'failed_exit', fallback=self.FAILED_EXIT))
-            self.mqtt_topic = self.config.get(self.NAME, 'mqtt_topic', fallback=self.mqtt_topic)
 
-        self.logger.debug('Sensor %s at cycle_sleep: %s.', self.NAME, self.SLEEP)
-        self.logger.debug('Sensor %s at failed_notify: %s.', self.NAME, self.FAILED_NOTIF)
-        self.logger.debug('Sensor %s at failed_exit: %s.', self.NAME, self.FAILED_EXIT)
+        self.logger.debug('Sensor %s at cycle_sleep: %s', self.NAME, self.SLEEP)
+        self.logger.debug('Sensor %s at failed_notify: %s', self.NAME, self.FAILED_NOTIF)
+        self.logger.debug('Sensor %s at failed_exit: %s', self.NAME, self.FAILED_EXIT)
 
     def setup_args(self, params):
         if hasattr(params, 'pin') and params.pin:
             self.PIN = params.pin
-            self.logger.info('Sensor %s at PIN: %s (set by script parameter).', self.NAME, self.PIN)
+            self.logger.info('Sensor %s at PIN: %s (set by script parameter)', self.NAME, self.PIN)
 
         if hasattr(params, 'gpio_bcm') and params.gpio_bcm:
             self.GPIO_BCM = True
-            self.logger.info('Sensor %s mode set to GPIO.BCM (set by script parameter).', self.NAME)
+            self.logger.info('Sensor %s mode set to GPIO.BCM (set by script parameter)', self.NAME)
 
         if hasattr(params, 'cycle_sleep') and params.cycle_sleep:
             self.SLEEP = params.cycle_sleep
-            self.logger.debug('Sensor %s at cycle_sleep: %s (set by script parameter).', self.NAME, self.SLEEP)
+            self.logger.debug('Sensor %s at cycle_sleep: %s (set by script parameter)', self.NAME, self.SLEEP)
 
         if hasattr(params, 'failed_notify') and params.failed_notify:
             self.FAILED_NOTIF = params.failed_notify
-            self.logger.debug('Sensor %s at failed_notify: %s (set by script parameter).', self.NAME, self.FAILED_NOTIF)
+            self.logger.debug('Sensor %s at failed_notify: %s (set by script parameter)', self.NAME, self.FAILED_NOTIF)
 
         if hasattr(params, 'failed_exit') and params.failed_exit:
             self.FAILED_EXIT = params.failed_exit
-            self.logger.debug('Sensor %s at failed_exit: %s (set by script parameter).', self.NAME, self.FAILED_EXIT)
-
-        if hasattr(params, 'mqtt_topic') and params.mqtt_topic:
-            self.mqtt_topic = params.mqtt_topic
-            self.logger.debug('Sensor %s at mqtt_topic: %s (set by script parameter).', self.NAME, self.mqtt_topic)
+            self.logger.debug('Sensor %s at failed_exit: %s (set by script parameter)', self.NAME, self.FAILED_EXIT)
 
     def gpio_setup(self):
         self.GPIO = GPIO
 
         if self.GPIO_BCM:
             self.GPIO.setmode(GPIO.BCM)
-            self.logger.debug('Sensor %s mode set to GPIO.BCM.', self.NAME)
+            self.logger.debug('Sensor %s mode set to GPIO.BCM', self.NAME)
         else:
             self.GPIO.setmode(GPIO.BOARD)
             self.logger.debug('Sensor %s mode set to GPIO.BOARD', self.NAME)
 
         self.GPIO.setup(self.PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        self.logger.info('Sensor %s at PIN: %s.', self.NAME, self.PIN)
+        self.logger.info('Sensor %s at PIN: %s', self.NAME, self.PIN)
 
     def gpio_cleanup(self):
         self.GPIO.cleanup()
-        self.logger.debug('Sensor %s GPIO cleanup.', self.NAME)
+        self.logger.debug('Sensor %s GPIO cleanup', self.NAME)
 
     def failed_notification_callback(self):
-        if self.mqtt_client:
-            mqtt_availability(self.mqtt_client, topic=self.mqtt_topic, available=False)
+        self.logger.debug('Sensor %s has failed', self.NAME)
 
     def pre_sensor_read_callback(self):
         """
@@ -161,9 +142,6 @@ class Sensor(object):
         """
         Helper function with code to be run after reading the sensor
         """
-        if self.FAILED == 0 and self.mqtt_client:
-            mqtt_availability(self.mqtt_client, topic=self.mqtt_topic, available=True)
-
         if self.FAILED >= self.FAILED_NOTIF:
             self.logger.warning('Sensor reading has failed %s in a row.' % self.FAILED)
             self.failed_notification_callback()
@@ -194,5 +172,4 @@ class Sensor(object):
         self.logger.info('Sensor %s has correctly finished sensing... BYE!', self.NAME)
 
     def notify(self, topic=None, payload=None):
-        if self.mqtt_client:
-            mqtt_notify(self.mqtt_client, topic=topic, payload=payload)
+        pass
