@@ -32,16 +32,16 @@ def get_logging_config(config, name):
     }
 
     level = config.get('global', 'loglevel', fallback=logging.INFO)
-    filename = config.get('global', 'logfile', fallback='').strip()
+    filename = config.get('global', 'logfile', fallback='')
 
     if name in config:
         level = config.get(name, 'loglevel', fallback=level)
-        logconfig['filename'] = config.get(name,  'logfile', fallback=filename).strip()
+        filename = config.get(name,  'logfile', fallback=filename)
 
     logconfig['level'] = parse_loglevel(level)
 
     if filename:
-        logconfig['filename'] = filename
+        logconfig['filename'] = filename.strip()
     else:
         logconfig['stream'] = sys.stdout
 
