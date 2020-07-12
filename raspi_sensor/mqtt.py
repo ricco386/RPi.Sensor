@@ -16,20 +16,16 @@ class MqttSensor(Sensor):
     broker_port = 1883
     broker_keepalive = 5
 
-    def __init__(self, name='Sensor', params=()):
-        super().__init__(name=name, params=params)
+    def __init__(self, name='MQTT Sensor'):
+        super().__init__(name=name)
 
         if 'mqtt' not in self.config:
             raise ConfigError('Missing "mqtt" section in config file.')
 
-        self.broker_url = self.config.get('mqtt', 'broker_url', fallback=self.broker_url)
+        self.broker_url = self.config.get('mqtt', 'broker_url')
         self.broker_port = int(self.config.get('mqtt', 'broker_port', fallback=self.broker_port))
 
         self.client = mqtt.Client()
-
-        self.logger.debug('MQTT is_connected %s:', self.client.is_connected())
-        self.logger.debug('MQTT state %s:', self.client._state)
-
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
         self.client.enable_logger(self.logger)
@@ -40,7 +36,7 @@ class MqttSensor(Sensor):
 
         if self.NAME in self.config:
             self.topic = self.config.get(self.NAME, 'mqtt_topic', fallback=None)
-            self.logger.debug('Sensor %s MQTT topic set to: %s', self.NAME, self.topic)
+            self.logger.debug('Sensor %s MQTT topic: %s', self.NAME, self.topic)
 
         self.connect()
 
@@ -49,8 +45,9 @@ class MqttSensor(Sensor):
 
         if hasattr(params, 'topic') and params.topic:
             self.topic = params.topic
-            self.logger.debug('Sensor %s at topic: %s (set by script parameter).', self.NAME, self.topic)
-        elif self.topic is None:
+            self.logger.debug('Sensor %s MQTT topic: %s (set by script parameter)', self.NAME, self.topic)
+
+        if self.topic is None:
             raise ConfigError('Missing MQTT topic.')
 
     @staticmethod

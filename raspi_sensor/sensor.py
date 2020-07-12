@@ -28,7 +28,7 @@ class Sensor(object):
     EXIT = False
     sensor_state = 0
 
-    def __init__(self, name='Sensor', params=()):
+    def __init__(self, name='Sensor'):
         self.NAME = name
         self.config = init_config_file()
 
@@ -40,7 +40,6 @@ class Sensor(object):
         signal.signal(signal.SIGTERM, self.exit_gracefully)
 
         self.setup_sensor()
-        self.setup_args(params)  # Should overwrite the default options in config file
 
     def exit_gracefully(self, signum, frame):
         self.EXIT = True
@@ -108,7 +107,7 @@ class Sensor(object):
         self.logger.debug('Sensor %s GPIO cleanup', self.NAME)
 
     def failed_notification_callback(self):
-        self.logger.debug('Sensor %s has failed', self.NAME)
+        self.logger.warning('Sensor reading has failed %s in a row.' % self.FAILED)
 
     def pre_sensor_read_callback(self):
         """
@@ -138,7 +137,6 @@ class Sensor(object):
         Helper function with code to be run after reading the sensor
         """
         if self.FAILED >= self.FAILED_NOTIF:
-            self.logger.warning('Sensor reading has failed %s in a row.' % self.FAILED)
             self.failed_notification_callback()
 
         if self.FAILED >= self.FAILED_EXIT:

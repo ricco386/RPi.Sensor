@@ -14,6 +14,7 @@ def setup_default_args(ap):
     ap.add_argument('--failed_notify', type=int, help='Number of failed sensor reading before alerting.')
     ap.add_argument('--failed_exit', type=int, help='Number of failed sensor reading before exiting.')
     ap.add_argument('--cycle_sleep', type=int, help='Number of failed sensor reading before alerting.')
+    # MqttSensor rguments
     ap.add_argument('--mqtt_topic', type=str, help='Set topic for MQTT where sensor will publish data.')
 
     return ap
@@ -30,14 +31,16 @@ def setup_args():
 
 def main():
     name = 'Sensor'
+    params = setup_args()
 
     if hasattr(params, 'name') and params.name:
         name = params.name
 
-    s = Sensor(name=name, params=params)
+    s = Sensor(name=name)
+    s.setup_args(params)
 
     if hasattr(params, 'status') and params.status:
-        s.sensor_read()  # If you want to read just  once
+        s.sensor_read()  # If you want to read just once
     else:
         s.sense()  # Start infinite loop (You can finish by CTRL+C or send kill signal)
 
