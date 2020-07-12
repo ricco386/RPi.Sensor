@@ -127,7 +127,8 @@ class MqttSensor(Sensor):
         super().post_sensor_read_callback()
 
         if self.FAILED == 0 \
-                and self.last_availability_notif + timedelta(seconds=self.availability_notif_period) < datetime.now():
+                and (self.last_availability_notif or
+                self.last_availability_notif + timedelta(seconds=self.availability_notif_period) < datetime.now()):
             self.publish_availability(available=True)
 
     def notify(self, topic=None, payload=None):
