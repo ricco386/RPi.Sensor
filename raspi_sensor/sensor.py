@@ -21,6 +21,7 @@ class Sensor(object):
     PIN = None
     GPIO = None
     GPIO_BCM = False
+    GPIO_OUT = False
     FAILED = 0
     FAILED_NOTIF = 10
     FAILED_EXIT = inf
@@ -60,6 +61,7 @@ class Sensor(object):
         if self.NAME in self.config:
             self.PIN = int(self.config.get(self.NAME, 'sensor_pin', fallback=self.PIN))
             self.GPIO_BCM = bool(self.config.get(self.NAME, 'gpio_bcm', fallback=self.GPIO_BCM))
+            self.GPIO_OUT = bool(self.config.get(self.NAME, 'gpio_out', fallback=self.GPIO_OUT))
             self.SLEEP = float(self.config.get(self.NAME, 'cycle_sleep', fallback=self.SLEEP))
             self.FAILED_NOTIF = int(self.config.get(self.NAME, 'failed_notify', fallback=self.FAILED_NOTIF))
             self.FAILED_EXIT = float(self.config.get(self.NAME, 'failed_exit', fallback=self.FAILED_EXIT))
@@ -76,6 +78,10 @@ class Sensor(object):
         if hasattr(params, 'gpio_bcm') and params.gpio_bcm:
             self.GPIO_BCM = True
             self.logger.info('Sensor %s mode set to GPIO.BCM (set by script parameter)', self.NAME)
+
+        if hasattr(params, 'gpio_out') and params.gpio_out:
+            self.GPIO_OUT = True
+            self.logger.info('Sensor %s mode set to GPIO.OUT (set by script parameter)', self.NAME)
 
         if hasattr(params, 'cycle_sleep') and params.cycle_sleep:
             self.SLEEP = params.cycle_sleep
@@ -99,7 +105,11 @@ class Sensor(object):
             self.GPIO.setmode(GPIO.BOARD)
             self.logger.debug('Sensor %s mode set to GPIO.BOARD', self.NAME)
 
-        self.GPIO.setup(self.PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        if self.GPIO_OUT:
+            self.GPIO.setup(self.PIN, GPIO.OUT)
+        else:
+            self.GPIO.setup(self.PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
         self.logger.info('Sensor %s at PIN: %s', self.NAME, self.PIN)
 
     def gpio_cleanup(self):

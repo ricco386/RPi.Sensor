@@ -43,6 +43,8 @@ availability_notif_period = 600
 # For each sensor specified by its NAME (parameter of an __init__ function) you can override any of the global defaults.
 loglevel = DEBUG
 cycle_sleep = 60
+# Set GPIO Pin to output mode
+gpio_out = True
 
 # MqttSensor has topic as a required value
 mqtt_topic =

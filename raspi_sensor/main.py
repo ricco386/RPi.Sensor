@@ -12,6 +12,8 @@ def setup_default_args(ap):
     ap.add_argument('-p', '--pin', type=int, help='GPIO pin number.')
     ap.add_argument('-s', '--status', action='store_true', help='Get current sensor reading.')
     ap.add_argument('--gpio_bcm', action='store_true', help='Switch PIN numbers to GPIO BCM numbering.')
+    ap.add_argument('--gpio_out', action='store_true', help='Switch PIN to be in output mode it can be configured to '
+                                                            'high or low.')
     ap.add_argument('--failed_notify', type=int, help='Number of failed sensor reading before alerting.')
     ap.add_argument('--failed_exit', type=int, help='Number of failed sensor reading before exiting.')
     ap.add_argument('--cycle_sleep', type=int, help='Number of failed sensor reading before alerting.')
