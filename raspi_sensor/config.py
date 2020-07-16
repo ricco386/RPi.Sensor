@@ -9,16 +9,18 @@ import sys
 from configparser import ConfigParser
 
 
-def init_config_file():
+def init_config_file(cfg_location=None):
     """
-    Load configuration file and search in different locations.
+    Load configuration file and search in different locations if it is not specified.
     """
-    cfg = 'sensor.cfg'
     cfg_fp = None
-    cfg_lo = ((os.path.expanduser('~'), '.' + cfg), (sys.prefix, 'etc', cfg), ('/etc', cfg))
 
-    # Try to read config file from ~/.sensor.cfg or /etc/sensor.cfg
-    for i in cfg_lo:
+    if cfg_location is None:
+        cfg = 'sensor.cfg'
+        # Try to read config file from ~/.sensor.cfg or /etc/sensor.cfg
+        cfg_location = ((os.path.expanduser('~'), '.' + cfg), (sys.prefix, 'etc', cfg), ('/etc', cfg))
+
+    for i in cfg_location:
         try:
             cfg_fp = open(os.path.join(*i))
         except IOError:
@@ -30,6 +32,6 @@ def init_config_file():
         raise FileNotFoundError("Config file not found!")
 
     config = ConfigParser()
-    config.readfp(cfg_fp)
+    config.read_file(cfg_fp)
 
     return config
