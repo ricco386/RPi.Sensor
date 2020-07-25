@@ -7,7 +7,7 @@ import setuptools
 # noinspection PyPep8Naming
 from raspi_sensor import __version__ as VERSION
 
-    DEPS = ['RPi.GPIO', 'wheel', 'paho-mqtt']
+DEPS = ['RPi.GPIO', 'wheel', 'paho-mqtt']
 
 CLASSIFIERS = [
     'Environment :: Console',
