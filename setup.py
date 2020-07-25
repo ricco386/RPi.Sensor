@@ -7,7 +7,7 @@ import setuptools
 # noinspection PyPep8Naming
 from raspi_sensor import __version__ as VERSION
 
-DEPS = ['RPi.GPIO', 'wheel', 'paho-mqtt']
+    DEPS = ['RPi.GPIO', 'wheel', 'paho-mqtt']
 
 CLASSIFIERS = [
     'Environment :: Console',
@@ -33,7 +33,7 @@ setuptools.setup(
     name="RPi.Sensor",
     version=VERSION,
     author="Richard von Kellner",
-    author_email="richard.kellner [at] gmail.com",
+    author_email="richard.kellner@gmail.com",
     url="https://github.com/ricco386/RPi.Sensor",
     description="Python base class to create infinite loop to work with sensors.",
     long_description=sensor_long_description,
