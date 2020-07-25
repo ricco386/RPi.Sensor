@@ -25,7 +25,7 @@ tls-psk-file = /etc/zabbix/zabbix_agentd.psk
 [mqtt]
 # Broker address (required)
 broker_url = mqtt.example.com
-broker_port = 1883
+broker_port = 1884
 
 # Optional user credentials to login to MQTT broker
 broker_username =
@@ -34,10 +34,10 @@ broker_password =
 # Broker connection parameters
 # Maximum period in seconds between communications with the broker. If no other messages are being exchanged,
 # this controls the rate at which the client will send ping messages to the broker.
-broker_keepalive = 660
+broker_keepalive = 950
 
 # Period in seconds when the sensor will send an availability message to the broker
-availability_notif_period = 600
+availability_notif_period = 900
 
 [Sensor EXAMPLE]
 # For each sensor specified by its NAME (parameter of an __init__ function) you can override any of the global defaults.
@@ -53,4 +53,4 @@ failed_notify = 5
 failed_exit = 50
 
 # MqttSensor has topic as a required value
-mqtt_topic = 'example/test'
+mqtt_topic = example/test

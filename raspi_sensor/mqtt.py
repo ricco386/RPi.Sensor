@@ -19,14 +19,15 @@ class MqttSensor(Sensor):
     availability_notif_period = 600
     last_availability_notif = None
 
-    def __init__(self, name='MQTT Sensor'):
-        super().__init__(name=name)
+    def __init__(self, name='MQTT Sensor', config_path=None, autoconnect=True):
+        super().__init__(name=name, config_path=config_path)
 
         if 'mqtt' not in self.config:
             raise ConfigError('Missing "mqtt" section in config file.')
 
         self.broker_url = self.config.get('mqtt', 'broker_url')
         self.broker_port = int(self.config.get('mqtt', 'broker_port', fallback=self.broker_port))
+        self.broker_keepalive = int(self.config.get('mqtt', 'broker_keepalive', fallback=self.broker_keepalive))
         self.availability_notif_period = int(self.config.get('mqtt', 'availability_notif_period',
                                                              fallback=self.availability_notif_period))
 
@@ -48,7 +49,9 @@ class MqttSensor(Sensor):
 
         self.logger.debug('Sensor %s periodic availability message will be sent to MQTT broker every %s minutes.',
                           self.NAME, self.availability_notif_period)
-        self.connect()
+
+        if autoconnect:
+            self.connect()
 
     def setup_args(self, params):
         super().setup_args(params=params)
