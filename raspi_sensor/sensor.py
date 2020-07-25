@@ -29,9 +29,9 @@ class Sensor(object):
     EXIT = False
     sensor_state = 0
 
-    def __init__(self, name='Sensor'):
+    def __init__(self, name='Sensor', config_path=None):
         self.NAME = name
-        self.config = init_config_file()
+        self.config = init_config_file(cfg_location=config_path)
 
         # Setup logging
         self.logger = logging.getLogger(self.NAME)

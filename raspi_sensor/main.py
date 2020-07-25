@@ -17,6 +17,7 @@ def setup_default_args(ap):
     ap.add_argument('--failed_notify', type=int, help='Number of failed sensor reading before alerting.')
     ap.add_argument('--failed_exit', type=int, help='Number of failed sensor reading before exiting.')
     ap.add_argument('--cycle_sleep', type=int, help='Number of failed sensor reading before alerting.')
+    ap.add_argument('-c', '--config', type=str, help='Path to the sensor configuration file.')
 
     return ap
 

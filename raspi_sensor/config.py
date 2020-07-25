@@ -20,13 +20,15 @@ def init_config_file(cfg_location=None):
         # Try to read config file from ~/.sensor.cfg or /etc/sensor.cfg
         cfg_location = ((os.path.expanduser('~'), '.' + cfg), (sys.prefix, 'etc', cfg), ('/etc', cfg))
 
-    for i in cfg_location:
-        try:
-            cfg_fp = open(os.path.join(*i))
-        except IOError:
-            continue
-        else:
-            break
+        for i in cfg_location:
+            try:
+                cfg_fp = open(os.path.join(*i))
+            except IOError:
+                continue
+            else:
+                break
+    else:
+        cfg_fp = open(cfg_location)
 
     if not cfg_fp:
         raise FileNotFoundError("Config file not found!")

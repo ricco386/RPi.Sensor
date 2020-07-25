@@ -7,12 +7,12 @@ logfile = /tmp/sensor.log
 loglevel = INFO
 
 # Notify after X failed sensor readings
-failed_notify = 10
+failed_notify = 7
 # Exit after X failed sensor readings, remove from config to set to infinity
 failed_exit = 15
 
 # time.sleep() in the infinite loop, in seconds
-cycle_sleep = 0.05
+cycle_sleep = 0.1
 
 [zabbix]
 server = zabbix-server.example.com
@@ -39,12 +39,18 @@ broker_keepalive = 660
 # Period in seconds when the sensor will send an availability message to the broker
 availability_notif_period = 600
 
-[Sensor NAME]
+[Sensor EXAMPLE]
 # For each sensor specified by its NAME (parameter of an __init__ function) you can override any of the global defaults.
-loglevel = DEBUG
-cycle_sleep = 60
+sensor_pin = 11
+
 # Set GPIO Pin to output mode
 gpio_out = True
+gpio_bcm = True
+
+loglevel = DEBUG
+cycle_sleep = 60
+failed_notify = 5
+failed_exit = 50
 
 # MqttSensor has topic as a required value
-mqtt_topic =
+mqtt_topic = 'example/test'
