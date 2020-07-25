@@ -1,6 +1,9 @@
 RPi.Sensor
 ##########
 
+.. image:: https://github.com/ricco386/RPi.Sensor/workflows/Test%20RPi.Sensor%20codebase/badge.svg
+.. image:: https://github.com/ricco386/RPi.Sensor/workflows/Release%20RPi.Sensor%20to%20PyPI/badge.svg
+
 Generic Python base class to create infinite loop to work with different sensors connected to Raspberry Pi. Project
 contains also extended Python base class with MQTT support.
 
@@ -8,7 +11,7 @@ RPi.Sensor library is stable in terms of running as a base class. Sensor logic a
 after sensor measurement should be implemented in child objects anyway... But there are new features developed (and
 bug fixed as they are found) so it is recommended always use the latest version.
 
-If you want to see example of implemented sensors, have a look at my other `RPi repo<https://github.com/ricco386/RPi>`_.
+If you want to see example of implemented sensors, have a look at my other `RPi repo <https://github.com/ricco386/RPi>`_.
 
 Installation
 ------------
@@ -40,7 +43,7 @@ functionality to terminate the infinite loop correctly (uppon CTRL+C or kill sig
 Intention is to have ability to easily run some code before (or after) reading the sensor, this is is skeleton that
 doesnt do any logic and should be used only as a base for building the interactions with the sensors.
 
-If you want to see example of implemented sensors, have a look at my other `RPi repo<https://github.com/ricco386/RPi>`_.
+If you want to see example of implemented sensors, have a look at my other `RPi repo <https://github.com/ricco386/RPi>`_.
 
 If you find a security vulnerability please read through
 `SECURITY.rst <https://github.com/ricco386/RPi.Sensor/blob/master/SECURITY.rst>`_ file and report it responsibly. All

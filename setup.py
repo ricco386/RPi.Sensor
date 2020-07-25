@@ -37,6 +37,7 @@ setuptools.setup(
     url="https://github.com/ricco386/RPi.Sensor",
     description="Python base class to create infinite loop to work with sensors.",
     long_description=sensor_long_description,
+    long_description_content_type="text/x-rst",
     license="MIT",
     packages=setuptools.find_packages(),
     package_data={
