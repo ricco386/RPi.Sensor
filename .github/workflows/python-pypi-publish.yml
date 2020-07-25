@@ -6,8 +6,8 @@ name: Release RPi.Sensor to PyPI
 on:
   push:
     tags:
-      - 1.*
-      - 0.*
+      - '1.*'
+      - '0.*'
 
 jobs:
   deploy:
