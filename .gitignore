@@ -3,13 +3,21 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# related files and django apps
+local_settings.py
+django-node
+node
+public/*
+
 # C extensions
 *.so
 
 # Distribution / packaging
 .Python
 env/
-# build/
+envs/
+envs3/
+build/
 develop-eggs/
 dist/
 downloads/
@@ -23,6 +31,11 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# DB dump files
+*.sql
+*.sqlite
+*.sqlite3
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -68,7 +81,7 @@ docs/_build/
 # PyBuilder
 target/
 
-# IPython Notebook
+# Ipython Notebook
 .ipynb_checkpoints
 
 # pyenv
@@ -97,6 +110,9 @@ ENV/
 
 # Vim
 *.swp
+
+.project
+.pydevproject
 
 # Visual Studio Code
 .vscode
