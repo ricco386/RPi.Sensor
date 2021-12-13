@@ -24,7 +24,7 @@ def setup_default_args(ap):
 
 def setup_default_mqtt_args(ap):
     setup_default_args(ap)
-    ap.add_argument('--mqtt_topic', type=str, help='Set topic for MQTT where sensor will publish data.')
+    ap.add_argument('--mqtt_topic', type=str, dest='topic', help='Set topic for MQTT where sensor will publish data.')
 
     return ap
 
